@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1117" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>MD Reader</title>
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/icon.svg" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<link rel="stylesheet" id="hljs-light" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css" disabled>
+<link rel="stylesheet" id="hljs-dark" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/common.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+
+<style>
+  :root {
+    --bg: #0d1117; --bg-2: #161b22; --border: #30363d;
+    --fg: #e6edf3; --fg-muted: #8b949e; --accent: #58a6ff; --accent-2: #1f6feb;
+    --code-bg: #161b22; --sel: #264f78;
+  }
+  [data-theme="light"] {
+    --bg: #ffffff; --bg-2: #f6f8fa; --border: #d0d7de;
+    --fg: #1f2328; --fg-muted: #656d76; --accent: #0969da; --accent-2: #0969da;
+    --code-bg: #f6f8fa; --sel: #b6d7ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overscroll-behavior: none; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--sel); }
+
+  /* ---- layout: 3 columns (file tree | doc | TOC) ---- */
+  .app { display: grid; grid-template-columns: 280px 1fr; height: 100dvh; }
+  body.toc-open.wide .app { grid-template-columns: 280px 1fr 260px; }
+
+  /* left sidebar */
+  aside.side {
+    background: var(--bg-2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  /* right TOC */
+  aside.toc {
+    background: var(--bg-2); border-left: 1px solid var(--border);
+    overflow: auto; padding: 14px 8px; display: none;
+  }
+  body.toc-open.wide aside.toc { display: block; }
+
+  @media (max-width: 1100px) {
+    /* narrow: sidebars become overlay drawers */
+    .app { grid-template-columns: 1fr !important; }
+    aside.side {
+      position: fixed; inset: 0 auto 0 0; width: 280px; z-index: 30;
+      transform: translateX(-100%); transition: transform .2s ease;
+    }
+    aside.side.open { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
+    aside.toc {
+      position: fixed; inset: 0 0 0 auto; width: 280px; z-index: 30;
+      transform: translateX(100%); transition: transform .2s ease;
+      display: block;
+    }
+    aside.toc.open { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
+  }
+
+  /* sidebar chrome */
+  .side-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand { font-weight: 600; letter-spacing: -.01em; flex: 1; }
+  .brand span { color: var(--fg-muted); font-weight: 400; }
+
+  .tree { overflow: auto; padding: 8px 6px; flex: 1; }
+  .tree button {
+    display: block; width: 100%; text-align: left; background: none; border: 0;
+    color: var(--fg); padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    font: inherit; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tree button:hover { background: var(--bg); }
+  .tree button.active { background: var(--accent-2); color: #fff; }
+  .tree .folder {
+    padding: 6px 10px; font-size: 12px; color: var(--fg-muted);
+    text-transform: uppercase; letter-spacing: .05em; margin-top: 6px;
+  }
+  .side-foot { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+  /* TOC */
+  .toc-title { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+               color: var(--fg-muted); padding: 4px 10px 8px; }
+  .toc a {
+    display: block; padding: 4px 10px; border-radius: 6px; color: var(--fg-muted);
+    text-decoration: none; font-size: 13px; line-height: 1.35;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .toc a:hover { background: var(--bg); color: var(--fg); }
+  .toc a.lvl-1 { color: var(--fg); font-weight: 600; }
+  .toc a.lvl-2 { padding-left: 10px; }
+  .toc a.lvl-3 { padding-left: 22px; }
+  .toc a.lvl-4 { padding-left: 34px; }
+  .toc a.active { background: var(--accent-2); color: #fff; }
+
+  main { display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  header {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); background: var(--bg);
+    position: sticky; top: 0; z-index: 5;
+    padding-top: max(10px, env(safe-area-inset-top));
+  }
+  .filename { flex: 1; font-size: 13px; color: var(--fg-muted);
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn {
+    background: var(--bg-2); color: var(--fg); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 6px; font: inherit; font-size: 13px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .hamburger { display: none; }
+  @media (max-width: 1100px) { .hamburger { display: inline-block; } }
+
+  .content { overflow: auto; padding: 32px 24px 80px; scroll-behavior: smooth; }
+  .doc { max-width: 820px; margin: 0 auto; }
+
+  .empty {
+    max-width: 520px; margin: 12vh auto; text-align: center; color: var(--fg-muted);
+    border: 2px dashed var(--border); border-radius: 14px; padding: 48px 24px;
+  }
+  .empty h2 { color: var(--fg); margin: 0 0 8px; font-size: 20px; }
+  .empty p { margin: 6px 0 20px; font-size: 14px; }
+  .empty.drag { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+  /* markdown typography */
+  .doc h1, .doc h2, .doc h3, .doc h4 { line-height: 1.25; margin: 1.6em 0 .6em; font-weight: 600; scroll-margin-top: 70px; }
+  .doc h1 { font-size: 2em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+  .doc h2 { font-size: 1.5em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+  .doc h3 { font-size: 1.25em; }
+  .doc p, .doc ul, .doc ol, .doc blockquote, .doc table { margin: 0 0 1em; }
+  .doc a { color: var(--accent); text-decoration: none; }
+  .doc a:hover { text-decoration: underline; }
+  .doc ul, .doc ol { padding-left: 1.6em; }
+  .doc li + li { margin-top: .25em; }
+  .doc blockquote { border-left: 4px solid var(--border); color: var(--fg-muted); padding: 0 1em; margin-left: 0; }
+  .doc code {
+    background: var(--code-bg); padding: .2em .4em; border-radius: 4px;
+    font: 85%/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .doc pre { background: var(--code-bg); padding: 14px 16px; border-radius: 8px; overflow: auto; border: 1px solid var(--border); }
+  .doc pre code { background: none; padding: 0; font-size: 13px; }
+  .doc table { border-collapse: collapse; display: block; overflow: auto; }
+  .doc th, .doc td { border: 1px solid var(--border); padding: 6px 12px; }
+  .doc th { background: var(--bg-2); font-weight: 600; }
+  .doc img { max-width: 100%; border-radius: 6px; }
+  .doc hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+  .doc input[type="checkbox"] { margin-right: .5em; }
+  .doc .task-list-item { list-style: none; margin-left: -1.4em; }
+  .doc .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+  .doc .katex { font-size: 1.05em; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+
+  /* mobile scrim */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 25; display: none; }
+  .scrim.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side" id="sidebar">
+    <div class="side-head">
+      <div class="brand">MD <span>Reader</span></div>
+      <button class="btn" id="themeBtn" title="Toggle theme">◐</button>
+    </div>
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="btn" id="clearBtn" style="flex:1">Clear library</button>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <button class="btn hamburger" id="menuBtn">☰</button>
+      <button class="btn primary" id="openFiles">Open files</button>
+      <button class="btn" id="openFolder" style="display:none">Open folder</button>
+      <div class="filename" id="filename">No file loaded</div>
+      <button class="btn" id="tocBtn" title="Outline">☷</button>
+    </header>
+
+    <div class="content" id="content">
+      <div class="empty" id="empty">
+        <h2>Drop a Markdown file</h2>
+        <p>Or use <b>Open files</b>. Files persist locally. Supports GFM, KaTeX, code highlighting.</p>
+      </div>
+      <div class="doc" id="doc" hidden></div>
+    </div>
+  </main>
+
+  <aside class="toc" id="toc">
+    <div class="toc-title">Outline</div>
+    <div id="tocList"></div>
+  </aside>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<input type="file" id="fileInput" multiple accept=".md,.markdown,.mdx,.txt" hidden />
+<input type="file" id="folderInput" webkitdirectory multiple hidden />
+
+<script>
+  // --- register SW ---
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+
+  window.addEventListener('load', init);
+
+  /* ============================================================
+     IndexedDB mini-wrapper  (no libs)
+     ============================================================ */
+  const DB = 'md-reader', DBV = 1;
+  function idb() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open(DB, DBV);
+      r.onupgradeneeded = () => {
+        const db = r.result;
+        if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' });
+        if (!db.objectStoreNames.contains('meta'))  db.createObjectStore('meta');
+      };
+      r.onsuccess = () => res(r.result);
+      r.onerror   = () => rej(r.error);
+    });
+  }
+  const idbTx = async (store, mode, fn) => {
+    const db = await idb();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(store, mode);
+      const req = fn(tx.objectStore(store));
+      tx.oncomplete = () => res(req && req.result);
+      tx.onerror = () => rej(tx.error);
+    });
+  };
+  const idbPut     = (s, v, k) => idbTx(s, 'readwrite', (os) => k === undefined ? os.put(v) : os.put(v, k));
+  const idbGet     = (s, k)    => idbTx(s, 'readonly',  (os) => os.get(k));
+  const idbGetAll  = (s)       => idbTx(s, 'readonly',  (os) => os.getAll());
+  const idbClear   = (s)       => idbTx(s, 'readwrite', (os) => os.clear());
+
+  /* ============================================================
+     Init
+     ============================================================ */
+  function init() {
+    const md = window.markdownit({ html: true, linkify: true, typographer: true, breaks: false,
+      highlight(str, lang) {
+        if (lang && window.hljs && hljs.getLanguage(lang)) {
+          try { return hljs.highlight(str, { language: lang }).value; } catch {}
+        }
+        return '';
+      },
+    });
+
+    // GFM task lists
+    md.core.ruler.after('inline', 'gfm-task-list', (state) => {
+      const t = state.tokens;
+      for (let i = 2; i < t.length; i++) {
+        if (t[i].type !== 'inline' || t[i-2].type !== 'list_item_open') continue;
+        const first = t[i].children[0];
+        if (first && first.type === 'text') {
+          const m = first.content.match(/^\[([ xX])\]\s+/);
+          if (m) {
+            first.content = first.content.slice(m[0].length);
+            const box = new state.Token('html_inline', '', 0);
+            box.content = `<input type="checkbox" disabled ${m[1].toLowerCase()==='x'?'checked':''}>`;
+            t[i].children.unshift(box);
+            t[i-2].attrJoin('class', 'task-list-item');
+          }
+        }
+      }
+    });
+
+    // --- KaTeX plugin ---
+    const esc = md.utils.escapeHtml;
+    const renderMath = (src, displayMode) => {
+      if (!window.katex) return esc(src);
+      try { return katex.renderToString(src, { displayMode, throwOnError: false, output: 'html' }); }
+      catch { return esc(src); }
+    };
+    md.inline.ruler.after('escape', 'math_inline', (state, silent) => {
+      const s = state.pos;
+      if (state.src[s] !== '$' || state.src[s+1] === '$') return false;
+      let p = s + 1;
+      while (p < state.posMax) {
+        const c = state.src[p];
+        if (c === '\\') { p += 2; continue; }
+        if (c === '\n') return false;
+        if (c === '$') break;
+        p++;
+      }
+      if (p >= state.posMax || state.src[p] !== '$') return false;
+      const content = state.src.slice(s+1, p);
+      if (!content.trim()) return false;
+      if (!silent) { const tk = state.push('math_inline', 'math', 0); tk.content = content; }
+      state.pos = p + 1;
+      return true;
+    });
+    md.renderer.rules.math_inline = (t, i) => renderMath(t[i].content, false);
+
+    md.block.ruler.before('fence', 'math_block', (state, startLine, endLine, silent) => {
+      const pos = state.bMarks[startLine] + state.tShift[startLine];
+      const max = state.eMarks[startLine];
+      if (pos + 2 > max || state.src.slice(pos, pos+2) !== '$$') return false;
+      const firstLine = state.src.slice(pos + 2, max);
+      if (firstLine.trim().endsWith('$$') && firstLine.trim().length > 2) {
+        if (silent) return true;
+        const tk = state.push('math_block', 'math', 0);
+        tk.content = firstLine.trim().slice(0, -2);
+        tk.block = true;
+        state.line = startLine + 1;
+        return true;
+      }
+      let found = false, lastLine = 0, lastPos = 0;
+      for (let n = startLine + 1; n < endLine; n++) {
+        const p = state.bMarks[n] + state.tShift[n];
+        const m = state.eMarks[n];
+        const idx = state.src.slice(p, m).indexOf('$$');
+        if (idx >= 0) { lastLine = n; lastPos = p + idx; found = true; break; }
+      }
+      if (!found) return false;
+      if (silent) return true;
+      const tk = state.push('math_block', 'math', 0);
+      tk.content = state.src.slice(pos + 2, lastPos);
+      tk.block = true;
+      state.line = lastLine + 1;
+      return true;
+    });
+    md.renderer.rules.math_block = (t, i) => '<p>' + renderMath(t[i].content, true) + '</p>\n';
+
+    /* ============================================================
+       State
+       ============================================================ */
+    const files = new Map();      // path -> { name, content }
+    let current = null;
+
+    const $ = (id) => document.getElementById(id);
+    const docEl = $('doc'), emptyEl = $('empty'), filenameEl = $('filename');
+    const treeEl = $('tree'), contentEl = $('content');
+    const sidebar = $('sidebar'), tocEl = $('toc'), tocListEl = $('tocList');
+    const scrim = $('scrim');
+
+    // detect wide layout
+    const mq = window.matchMedia('(max-width: 1100px)');
+    const isNarrow = () => mq.matches;
+    const applyWide = () => {
+      document.body.classList.toggle('wide', !isNarrow());
+      if (isNarrow()) closeDrawers();
+    };
+    mq.addEventListener('change', applyWide);
+    applyWide();
+
+    function closeDrawers() {
+      sidebar.classList.remove('open');
+      tocEl.classList.remove('open');
+      scrim.classList.remove('show');
+    }
+    function openSide() {
+      sidebar.classList.add('open');
+      tocEl.classList.remove('open');
+      scrim.classList.add('show');
+    }
+    function openTocDrawer() {
+      tocEl.classList.add('open');
+      sidebar.classList.remove('open');
+      scrim.classList.add('show');
+    }
+    scrim.onclick = closeDrawers;
+
+    /* ============================================================
+       File loading + persistence
+       ============================================================ */
+    async function loadFiles(list) {
+      const jobs = [];
+      const added = [];
+      for (const f of list) {
+        const path = (f.webkitRelativePath || f.name).replace(/^\/+/, '');
+        if (!/\.(md|markdown|mdx|txt)$/i.test(path)) continue;
+        jobs.push(new Promise((resolve) => {
+          const r = new FileReader();
+          r.onload = () => {
+            files.set(path, { name: path, content: r.result });
+            added.push({ path, content: r.result, savedAt: Date.now() });
+            resolve();
+          };
+          r.onerror = resolve;
+          r.readAsText(f);
+        }));
+      }
+      await Promise.all(jobs);
+      // persist (fire and forget)
+      for (const rec of added) idbPut('files', rec).catch(() => {});
+      return added.length;
+    }
+
+    function renderTree() {
+      treeEl.innerHTML = '';
+      if (!files.size) return;
+      const paths = [...files.keys()].sort();
+      let lastDir = null;
+      for (const p of paths) {
+        const parts = p.split('/');
+        const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : null;
+        if (dir && dir !== lastDir) {
+          const d = document.createElement('div');
+          d.className = 'folder';
+          d.textContent = dir;
+          treeEl.appendChild(d);
+          lastDir = dir;
+        }
+        const b = document.createElement('button');
+        b.textContent = parts[parts.length - 1];
+        b.title = p;
+        b.dataset.path = p;
+        if (p === current) b.classList.add('active');
+        b.onclick = () => showFile(p);
+        treeEl.appendChild(b);
+      }
+    }
+
+    /* ============================================================
+       Routing (hash)
+       ============================================================ */
+    function readHash() {
+      const h = location.hash;
+      if (!h.startsWith('#/')) return null;
+      try { return decodeURI(h.slice(2)); } catch { return null; }
+    }
+    function setHash(path, replace = false) {
+      const next = '#/' + encodeURI(path);
+      if (location.hash === next) return;
+      if (replace) history.replaceState(null, '', next);
+      else location.hash = next;
+    }
+
+    window.addEventListener('hashchange', () => {
+      const p = readHash();
+      if (p && files.has(p) && p !== current) showFile(p, { updateHash: false });
+    });
+
+    /* ============================================================
+       Show file + TOC build
+       ============================================================ */
+    function headingText(h) {
+      const clone = h.cloneNode(true);
+      clone.querySelectorAll('.katex-mathml').forEach((n) => n.remove());
+      return clone.textContent.trim();
+    }
+    function slugify(s) {
+      return s.toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) || 'section';
+    }
+
+    function buildTOC() {
+      const hs = docEl.querySelectorAll('h1, h2, h3, h4');
+      const used = new Map();
+      const toc = [];
+      hs.forEach((h) => {
+        const level = +h.tagName[1];
+        let slug = slugify(headingText(h));
+        if (used.has(slug)) {
+          const n = used.get(slug) + 1;
+          used.set(slug, n);
+          slug = `${slug}-${n}`;
+        } else used.set(slug, 0);
+        h.id = slug;
+        toc.push({ level, text: headingText(h), id: slug });
+      });
+
+      tocListEl.innerHTML = '';
+      if (!toc.length) {
+        tocListEl.innerHTML = '<div style="padding:8px 10px;color:var(--fg-muted);font-size:13px">No headings</div>';
+        return toc;
+      }
+      for (const item of toc) {
+        const a = document.createElement('a');
+        a.href = '#' + item.id;
+        a.className = 'lvl-' + item.level;
+        a.textContent = item.text;
+        a.dataset.id = item.id;
+        a.onclick = (e) => {
+          e.preventDefault();
+          const el = document.getElementById(item.id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (isNarrow()) closeDrawers();
+        };
+        tocListEl.appendChild(a);
+      }
+      return toc;
+    }
+
+    // highlight active heading in TOC as you scroll
+    let scrollSpy = null;
+    function setupScrollSpy() {
+      if (scrollSpy) scrollSpy.disconnect();
+      const headings = docEl.querySelectorAll('h1, h2, h3, h4');
+      if (!headings.length) return;
+      const map = new Map();
+      tocListEl.querySelectorAll('a').forEach((a) => map.set(a.dataset.id, a));
+      scrollSpy = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          const a = map.get(en.target.id);
+          if (!a) return;
+          if (en.isIntersecting) {
+            tocListEl.querySelectorAll('a.active').forEach((x) => x.classList.remove('active'));
+            a.classList.add('active');
+          }
+        });
+      }, { root: contentEl, rootMargin: '-70px 0px -70% 0px', threshold: 0 });
+      headings.forEach((h) => scrollSpy.observe(h));
+    }
+
+    function showFile(path, { updateHash = true } = {}) {
+      const f = files.get(path);
+      if (!f) return;
+      current = path;
+      filenameEl.textContent = path;
+      docEl.innerHTML = md.render(f.content);
+      docEl.hidden = false;
+      emptyEl.hidden = true;
+      contentEl.scrollTop = 0;
+
+      buildTOC();
+      setupScrollSpy();
+
+      // auto-show TOC if we have headings and we're wide
+      if (!isNarrow() && tocListEl.children.length) document.body.classList.add('toc-open');
+
+      renderTree();
+      if (isNarrow()) closeDrawers();
+      if (updateHash) setHash(path);
+
+      // save last opened
+      idbPut('meta', path, 'lastFile').catch(() => {});
+
+      // intercept internal .md links
+      docEl.querySelectorAll('a[href]').forEach((a) => {
+        const href = a.getAttribute('href');
+        if (!href || /^(https?:|mailto:|#)/.test(href)) return;
+        a.addEventListener('click', (e) => {
+          const target = resolvePath(current, href.split('#')[0]);
+          if (files.has(target)) { e.preventDefault(); showFile(target); }
+          else a.title = `Not loaded: ${target}`;
+        });
+      });
+    }
+
+    function resolvePath(fromPath, rel) {
+      if (!rel.startsWith('.')) return rel;
+      const fromDir = fromPath.includes('/') ? fromPath.slice(0, fromPath.lastIndexOf('/')) : '';
+      const parts = (fromDir + '/' + rel).split('/');
+      const out = [];
+      for (const p of parts) {
+        if (p === '' || p === '.') continue;
+        if (p === '..') out.pop(); else out.push(p);
+      }
+      return out.join('/');
+    }
+
+    /* ============================================================
+       UI wiring
+       ============================================================ */
+    $('openFiles').onclick = () => $('fileInput').click();
+    $('openFolder').onclick = () => $('folderInput').click();
+    $('menuBtn').onclick = () => sidebar.classList.contains('open') ? closeDrawers() : openSide();
+
+    // Show folder button only when drag-drop-entry is supported (desktop)
+    if ('webkitdirectory' in document.createElement('input')) $('openFolder').style.display = '';
+
+    $('tocBtn').onclick = () => {
+      if (isNarrow()) {
+        tocEl.classList.contains('open') ? closeDrawers() : openTocDrawer();
+      } else {
+        document.body.classList.toggle('toc-open');
+      }
+    };
+
+    $('fileInput').addEventListener('change', async (e) => {
+      await loadFiles(e.target.files);
+      renderTree();
+      if (!current && files.size) {
+        const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
+        showFile(readme || [...files.keys()][0]);
+      }
+      e.target.value = '';
+    });
+    $('folderInput').addEventListener('change', async (e) => {
+      await loadFiles(e.target.files);
+      renderTree();
+      if (!current && files.size) {
+        const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
+        showFile(readme || [...files.keys()][0]);
+      }
+      e.target.value = '';
+    });
+
+    // drag/drop
+    ['dragenter', 'dragover'].forEach((ev) =>
+      contentEl.addEventListener(ev, (e) => { e.preventDefault(); emptyEl.classList.add('drag'); })
+    );
+    ['dragleave', 'drop'].forEach((ev) =>
+      contentEl.addEventListener(ev, () => emptyEl.classList.remove('drag'))
+    );
+    contentEl.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      const dt = e.dataTransfer;
+      const items = dt.items;
+      const collected = [];
+      const walk = async (entry, prefix = '') => {
+        if (entry.isFile) {
+          const f = await new Promise((res) => entry.file(res));
+          Object.defineProperty(f, 'webkitRelativePath', { value: prefix + f.name });
+          collected.push(f);
+        } else if (entry.isDirectory) {
+          const reader = entry.createReader();
+          const entries = await new Promise((res) => reader.readEntries(res));
+          for (const en of entries) await walk(en, prefix + entry.name + '/');
+        }
+      };
+      const entries = [];
+      for (const item of items) {
+        const en = item.webkitGetAsEntry?.();
+        if (en) entries.push(en);
+      }
+      if (entries.length) {
+        for (const en of entries) await walk(en);
+        await loadFiles(collected);
+      } else {
+        await loadFiles(dt.files);
+      }
+      renderTree();
+      if (!current && files.size) {
+        const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
+        showFile(readme || [...files.keys()][0]);
+      }
+    });
+
+    // theme
+    const savedTheme = localStorage.getItem('md-theme');
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    const syncHljs = () => {
+      const dark = document.documentElement.dataset.theme !== 'light';
+      $('hljs-dark').disabled = !dark;
+      $('hljs-light').disabled = dark;
+      document.querySelector('meta[name="theme-color"]')
+        .setAttribute('content', dark ? '#0d1117' : '#ffffff');
+    };
+    syncHljs();
+    $('themeBtn').onclick = () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('md-theme', next);
+      syncHljs();
+    };
+
+    // clear library
+    $('clearBtn').onclick = async () => {
+      if (!confirm('Clear all saved files from this device?')) return;
+      await idbClear('files');
+      await idbClear('meta');
+      files.clear();
+      current = null;
+      docEl.innerHTML = '';
+      docEl.hidden = true;
+      emptyEl.hidden = false;
+      filenameEl.textContent = 'No file loaded';
+      tocListEl.innerHTML = '';
+      renderTree();
+      history.replaceState(null, '', location.pathname);
+    };
+
+    /* ============================================================
+       Boot: restore library, resolve initial file
+       ============================================================ */
+    (async function boot() {
+      try {
+        const stored = await idbGetAll('files');
+        for (const rec of stored) files.set(rec.path, { name: rec.path, content: rec.content });
+      } catch {}
+
+      renderTree();
+
+      const fromHash = readHash();
+      let lastFile = null;
+      try { lastFile = await idbGet('meta', 'lastFile'); } catch {}
+
+      if (fromHash && files.has(fromHash)) showFile(fromHash, { updateHash: false });
+      else if (lastFile && files.has(lastFile)) showFile(lastFile, { updateHash: false });
+      else if (files.size) {
+        const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
+        showFile(readme || [...files.keys()][0]);
+      }
+    })();
+  }
+</script>
+</body>
+  </html>
