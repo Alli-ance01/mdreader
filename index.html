@@ -57,11 +57,7 @@
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0; height: 100%;
-    overscroll-behavior: none;
-    overflow-x: clip;
-  }
+  html, body { margin: 0; height: 100%; overscroll-behavior: none; overflow-x: clip; }
   body {
     background: var(--bg); color: var(--fg);
     font: 15px/1.65 var(--font-ui);
@@ -70,28 +66,15 @@
   }
   ::selection { background: var(--sel); color: var(--fg); }
 
-  /* ============================================================
-     Layout
-     ============================================================ */
-  .app {
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    height: 100dvh;
-  }
-  body.toc-open.wide .app {
-    grid-template-columns: 280px minmax(0, 1fr) 260px;
-  }
+  .app { display: grid; grid-template-columns: 280px minmax(0, 1fr); height: 100dvh; }
+  body.toc-open.wide .app { grid-template-columns: 280px minmax(0, 1fr) 260px; }
 
   aside.side {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden; min-width: 0;
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden; min-width: 0;
   }
-
   aside.toc {
-    background: var(--surface);
-    border-left: 1px solid var(--border);
+    background: var(--surface); border-left: 1px solid var(--border);
     overflow-y: auto; overflow-x: hidden;
     padding: 14px 8px; display: none; min-width: 0;
   }
@@ -101,33 +84,26 @@
     .app { grid-template-columns: minmax(0, 1fr) !important; }
     aside.side {
       position: fixed; inset: 0 auto 0 0; width: 280px; z-index: 40;
-      transform: translateX(-100%);
-      transition: transform .2s ease;
+      transform: translateX(-100%); transition: transform .2s ease;
       box-shadow: 4px 0 24px rgba(0,0,0,.4);
     }
     aside.side.open { transform: none; }
     aside.toc {
       position: fixed; inset: 0 0 0 auto; width: 280px; z-index: 40;
-      transform: translateX(100%);
-      transition: transform .2s ease;
+      transform: translateX(100%); transition: transform .2s ease;
       display: block; box-shadow: -4px 0 24px rgba(0,0,0,.4);
     }
     aside.toc.open { transform: none; }
     #openFolder { display: none !important; }
   }
 
-  /* ============================================================
-     Sidebar
-     ============================================================ */
+  /* Sidebar chrome */
   .side-head {
     padding: 14px 14px 12px;
     display: flex; align-items: center; gap: 8px;
     border-bottom: 1px solid var(--border-soft);
   }
-  .brand {
-    font-weight: 700; letter-spacing: -.02em; flex: 1;
-    font-size: 15px; color: var(--fg);
-  }
+  .brand { font-weight: 700; letter-spacing: -.02em; flex: 1; font-size: 15px; color: var(--fg); }
   .brand span { color: var(--fg-muted); font-weight: 500; }
 
   .icon-btn {
@@ -135,23 +111,16 @@
     display: inline-flex; align-items: center; justify-content: center;
     background: transparent; color: var(--fg-muted);
     border: 1px solid transparent; border-radius: 6px;
-    cursor: pointer; transition: background .12s, color .12s, border-color .12s;
+    cursor: pointer; transition: background .12s, color .12s;
   }
-  .icon-btn:hover {
-    background: var(--surface-2); color: var(--fg);
-  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--fg); }
   .icon-btn:active { background: var(--surface-3); }
   .icon-btn svg { width: 16px; height: 16px; }
 
-  .search-wrap {
-    padding: 10px 12px;
-    position: relative;
-  }
+  .search-wrap { padding: 10px 12px; position: relative; }
   .search-wrap svg {
-    position: absolute; left: 22px; top: 50%;
-    transform: translateY(-50%);
-    width: 14px; height: 14px; color: var(--fg-dim);
-    pointer-events: none;
+    position: absolute; left: 22px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; color: var(--fg-dim); pointer-events: none;
   }
   .search {
     width: 100%; padding: 8px 10px 8px 32px;
@@ -162,72 +131,104 @@
     -webkit-appearance: none; appearance: none;
   }
   .search::placeholder { color: var(--fg-dim); }
-  .search:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
+  .search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
   .tree {
     overflow-y: auto; overflow-x: hidden;
-    padding: 4px 8px 8px; flex: 1; min-width: 0;
+    padding: 6px 8px 8px; flex: 1; min-width: 0;
   }
   .tree::-webkit-scrollbar { width: 8px; }
   .tree::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  .tree .folder {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 8px 4px; font-size: 11px; font-weight: 600;
-    color: var(--fg-dim);
-    text-transform: uppercase; letter-spacing: .06em;
+  /* ---- tree: folder rows ---- */
+  .tree .folder-row {
+    position: relative;
+    display: flex; align-items: center; gap: 4px;
+    width: 100%; text-align: left;
+    background: none; border: 0;
+    color: var(--fg-muted);
+    padding: 5px 8px; border-radius: 5px;
+    cursor: pointer; font: inherit; font-size: 13px; font-weight: 500;
+    white-space: nowrap; overflow: hidden;
+    transition: background .1s, color .1s;
   }
-  .tree .folder svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .tree .folder-row:hover { background: var(--surface-2); color: var(--fg); }
+  .tree .folder-row:active { background: var(--surface-3); }
+  .tree .folder-row .chev {
+    width: 12px; height: 12px; flex-shrink: 0;
+    transition: transform .15s ease;
+    color: var(--fg-dim);
+  }
+  .tree .folder-row.expanded .chev { transform: rotate(90deg); }
+  .tree .folder-row .folder-icon {
+    width: 14px; height: 14px; flex-shrink: 0; opacity: .7;
+    transition: opacity .12s, color .12s;
+  }
+  .tree .folder-row.expanded .folder-icon { color: var(--accent); opacity: 1; }
+  .tree .folder-row .folder-name {
+    overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1;
+    padding-left: 3px;
+  }
+  .tree .folder-row .folder-count {
+    font-size: 10.5px; font-weight: 600;
+    color: var(--fg-dim);
+    padding: 1px 6px; min-width: 18px; text-align: center;
+    background: var(--surface-2);
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .tree .folder-row:hover .folder-count,
+  .tree .folder-row.expanded .folder-count { background: var(--surface-3); color: var(--fg-muted); }
 
+  /* ---- tree: file rows ---- */
   .tree .file {
     position: relative;
     display: flex; align-items: center; gap: 8px;
     width: 100%; text-align: left;
     background: none; border: 0;
     color: var(--fg-muted);
-    padding: 7px 10px; border-radius: 6px;
+    padding: 5px 8px; border-radius: 5px;
     cursor: pointer; font: inherit; font-size: 13px; font-weight: 500;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: background .1s, color .1s;
   }
-  .tree .file svg {
-    width: 14px; height: 14px; flex-shrink: 0;
-    opacity: .6;
-  }
+  .tree .file svg { width: 14px; height: 14px; flex-shrink: 0; opacity: .7; }
   .tree .file:hover { background: var(--surface-2); color: var(--fg); }
   .tree .file:hover svg { opacity: 1; }
   .tree .file:active { background: var(--surface-3); }
   .tree .file.active {
-    background: var(--accent-soft); color: var(--fg);
-    font-weight: 600;
+    background: var(--accent-soft); color: var(--fg); font-weight: 600;
   }
-  .tree .file.active svg { opacity: 1; color: var(--accent); }
+  .tree .file.active svg { opacity: 1; }
   .tree .file.active::before {
     content: ""; position: absolute;
     left: 0; top: 6px; bottom: 6px; width: 2px;
-    background: var(--accent);
-    border-radius: 0 2px 2px 0;
+    background: var(--accent); border-radius: 0 2px 2px 0;
   }
-  .tree .file-name {
-    overflow: hidden; text-overflow: ellipsis; min-width: 0;
-  }
+  .tree .file-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .tree .file-name .ext { color: var(--fg-dim); font-weight: 400; }
+
+  /* type-based icon colors */
+  .tree .file[data-type="md"] svg      { color: #58a6ff; }
+  .tree .file[data-type="mmd"] svg     { color: #d2a8ff; }
+  .tree .file[data-type="csv"] svg     { color: #3fb950; }
+  .tree .file[data-type="xlsx"] svg    { color: #f0883e; }
+  [data-theme="light"] .tree .file[data-type="md"] svg   { color: #0969da; }
+  [data-theme="light"] .tree .file[data-type="mmd"] svg  { color: #8250df; }
+  [data-theme="light"] .tree .file[data-type="csv"] svg  { color: #1a7f37; }
+  [data-theme="light"] .tree .file[data-type="xlsx"] svg { color: #bc4c00; }
+
   .tree .empty-tree {
     padding: 20px 12px; text-align: center;
     font-size: 13px; color: var(--fg-dim);
   }
 
   .side-foot {
-    padding: 10px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
     border-top: 1px solid var(--border-soft);
   }
 
-  /* ============================================================
-     Buttons
-     ============================================================ */
+  /* Buttons */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     background: var(--surface-2); color: var(--fg);
@@ -240,24 +241,11 @@
   .btn:hover { background: var(--surface-3); }
   .btn:active { background: var(--surface-3); transform: translateY(1px); }
   .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-  .btn.primary {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    color: #fff;
-  }
+  .btn.primary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
   .btn.primary:hover { background: #2d7ff0; border-color: #2d7ff0; }
-
-  .btn.ghost {
-    background: transparent; border-color: transparent;
-    color: var(--fg-muted);
-  }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--fg-muted); }
   .btn.ghost:hover { background: var(--surface-2); color: var(--fg); }
-  .btn.full { width: 100%; }
 
-  /* ============================================================
-     Main
-     ============================================================ */
   main { display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
   header {
@@ -290,9 +278,6 @@
     .btn.has-icon { padding: 7px 9px; }
   }
 
-  /* ============================================================
-     Content
-     ============================================================ */
   .content {
     overflow: auto; scroll-behavior: smooth; min-width: 0;
     padding: 32px 28px 100px;
@@ -304,149 +289,134 @@
   .doc {
     max-width: 780px; margin: 0 auto;
     min-width: 0; overflow-wrap: anywhere;
-    user-select: text;
-    -webkit-user-select: text;
+    user-select: text; -webkit-user-select: text;
   }
+  .doc.wide { max-width: 1100px; } /* for CSV/XLSX */
 
-  @media (max-width: 1100px) {
-    .content { padding: 20px 16px 80px; }
-  }
+  @media (max-width: 1100px) { .content { padding: 20px 16px 80px; } }
 
-  /* ============================================================
-     Empty state
-     ============================================================ */
+  /* Empty state */
   .empty {
     max-width: 440px; margin: 8vh auto 0;
-    text-align: center; color: var(--fg-muted);
-    padding: 40px 24px;
+    text-align: center; color: var(--fg-muted); padding: 40px 24px;
   }
   .empty-glyph {
     width: 56px; height: 56px; margin: 0 auto 18px;
-    border-radius: 14px;
-    background: var(--accent-2);
+    border-radius: 14px; background: var(--accent-2);
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-weight: 700; font-size: 20px;
     font-family: var(--font-mono); letter-spacing: -.05em;
   }
-  .empty h2 {
-    color: var(--fg); margin: 0 0 8px;
-    font-size: 20px; font-weight: 700; letter-spacing: -.02em;
-  }
-  .empty p {
-    margin: 0 0 22px; font-size: 14px; line-height: 1.6;
-    color: var(--fg-muted);
-  }
-  .empty-actions {
-    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  }
+  .empty h2 { color: var(--fg); margin: 0 0 8px; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+  .empty p { margin: 0 0 22px; font-size: 14px; line-height: 1.6; color: var(--fg-muted); }
+  .empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .empty.drag {
-    background: var(--accent-soft);
-    border-radius: 12px;
-    outline: 2px dashed var(--accent);
-    outline-offset: 8px;
+    background: var(--accent-soft); border-radius: 12px;
+    outline: 2px dashed var(--accent); outline-offset: 8px;
   }
 
-  /* ============================================================
-     Markdown typography
-     ============================================================ */
+  /* Markdown typography */
   .doc h1, .doc h2, .doc h3, .doc h4 {
     line-height: 1.25; font-weight: 700; letter-spacing: -.02em;
-    margin: 2em 0 .65em; color: var(--fg);
-    scroll-margin-top: 70px;
+    margin: 2em 0 .65em; color: var(--fg); scroll-margin-top: 70px;
   }
-  .doc > h1:first-child, .doc > h2:first-child, .doc > h3:first-child {
-    margin-top: 0;
-  }
+  .doc > h1:first-child, .doc > h2:first-child, .doc > h3:first-child { margin-top: 0; }
   .doc h1 { font-size: 2em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
   .doc h2 { font-size: 1.5em; padding-bottom: .3em; border-bottom: 1px solid var(--border-soft); }
   .doc h3 { font-size: 1.2em; }
   .doc h4 { font-size: 1em; color: var(--fg-muted); }
-
   .doc p, .doc ul, .doc ol, .doc blockquote, .doc table, .doc pre { margin: 0 0 1em; }
-  .doc a {
-    color: var(--accent); text-decoration: none;
-  }
+  .doc a { color: var(--accent); text-decoration: none; }
   .doc a:hover { text-decoration: underline; }
-
   .doc ul, .doc ol { padding-left: 1.6em; }
   .doc li + li { margin-top: .25em; }
   .doc li > p { margin: 0 0 .5em; }
-
   .doc blockquote {
     border-left: 3px solid var(--border);
     color: var(--fg-muted); padding: 2px 0 2px 1em;
     margin-left: 0; margin-right: 0;
   }
-
   .doc code {
     background: var(--code-bg); padding: .18em .42em;
     border-radius: 5px; border: 1px solid var(--border-soft);
     font: 85%/1.5 var(--font-mono);
   }
   .doc pre {
-    background: var(--code-bg);
-    padding: 14px 16px; border-radius: 8px;
-    overflow: auto; border: 1px solid var(--border);
-    max-width: 100%;
+    background: var(--code-bg); padding: 14px 16px; border-radius: 8px;
+    overflow: auto; border: 1px solid var(--border); max-width: 100%;
   }
-  .doc pre code {
-    background: none; padding: 0; border: 0;
-    font-size: 13px; line-height: 1.6;
-  }
+  .doc pre code { background: none; padding: 0; border: 0; font-size: 13px; line-height: 1.6; }
 
   .doc table {
     border-collapse: collapse;
     display: block; overflow: auto; max-width: 100%;
     border: 1px solid var(--border); border-radius: 8px;
-    font-size: 14px;
+    font-size: 13.5px;
   }
   .doc th, .doc td {
     border-bottom: 1px solid var(--border);
     border-right: 1px solid var(--border);
-    padding: 8px 14px;
+    padding: 7px 12px;
+    max-width: 380px;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .doc th:last-child, .doc td:last-child { border-right: 0; }
   .doc tr:last-child td { border-bottom: 0; }
   .doc th {
     background: var(--surface-2); font-weight: 600;
     text-align: left; color: var(--fg);
+    position: sticky; top: 0; z-index: 1;
   }
+  .doc tbody tr:hover { background: var(--surface-2); }
 
-  .doc img, .doc video, .doc svg {
-    max-width: 100%; height: auto;
-    border-radius: 8px;
-  }
-  .doc hr {
-    border: 0; border-top: 1px solid var(--border);
-    margin: 2.5em 0;
-  }
+  .doc img, .doc video, .doc svg { max-width: 100%; height: auto; border-radius: 8px; }
+  .doc hr { border: 0; border-top: 1px solid var(--border); margin: 2.5em 0; }
   .doc input[type="checkbox"] {
-    margin-right: .5em;
-    accent-color: var(--accent-2);
-    transform: translateY(1px);
+    margin-right: .5em; accent-color: var(--accent-2); transform: translateY(1px);
   }
   .doc .task-list-item { list-style: none; margin-left: -1.5em; }
 
-  .doc .katex-display {
-    overflow-x: auto; overflow-y: hidden;
-    padding: 8px 0; max-width: 100%;
-  }
+  .doc .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; max-width: 100%; }
   .doc .katex { font-size: 1.05em; }
 
-  /* ============================================================
-     TOC
-     ============================================================ */
+  /* Sheet tabs (XLSX) */
+  .doc .sheet-tabs {
+    display: flex; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px; overflow-x: auto;
+  }
+  .doc .sheet-tabs::-webkit-scrollbar { height: 4px; }
+  .doc .sheet-tab {
+    background: none; border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--fg-muted);
+    padding: 8px 14px; cursor: pointer; font: inherit;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
+    transition: color .12s, border-color .12s;
+    margin-bottom: -1px;
+  }
+  .doc .sheet-tab:hover { color: var(--fg); }
+  .doc .sheet-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+  /* Mermaid */
+  .doc .mermaid {
+    background: var(--surface); padding: 20px; border-radius: 8px;
+    border: 1px solid var(--border); text-align: center;
+    overflow-x: auto;
+  }
+  .doc .mermaid svg { max-width: 100%; height: auto; }
+
+  /* TOC */
   .toc-title {
     font-size: 11px; font-weight: 600;
     text-transform: uppercase; letter-spacing: .08em;
-    color: var(--fg-dim);
-    padding: 4px 12px 10px;
+    color: var(--fg-dim); padding: 4px 12px 10px;
   }
   .toc-list { display: flex; flex-direction: column; gap: 1px; }
   .toc a {
-    position: relative;
-    display: block; padding: 6px 12px;
-    border-radius: 6px;
+    position: relative; display: block;
+    padding: 6px 12px; border-radius: 6px;
     color: var(--fg-muted); text-decoration: none;
     font-size: 12.5px; line-height: 1.4;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -457,36 +427,21 @@
   .toc a.lvl-2 { padding-left: 12px; }
   .toc a.lvl-3 { padding-left: 24px; font-size: 12px; }
   .toc a.lvl-4 { padding-left: 36px; font-size: 12px; color: var(--fg-dim); }
-  .toc a.active {
-    background: var(--accent-soft); color: var(--fg);
-    font-weight: 600;
-  }
+  .toc a.active { background: var(--accent-soft); color: var(--fg); font-weight: 600; }
   .toc a.active::before {
     content: ""; position: absolute;
-    left: 0; top: 6px; bottom: 6px;
-    width: 2px;
-    background: var(--accent);
-    border-radius: 0 2px 2px 0;
+    left: 0; top: 6px; bottom: 6px; width: 2px;
+    background: var(--accent); border-radius: 0 2px 2px 0;
   }
-  .toc-empty {
-    padding: 12px; text-align: center;
-    font-size: 12px; color: var(--fg-dim);
-  }
+  .toc-empty { padding: 12px; text-align: center; font-size: 12px; color: var(--fg-dim); }
 
-  /* ============================================================
-     Scrim
-     ============================================================ */
   .scrim {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.5);
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
     z-index: 35; display: none;
   }
   .scrim.show { display: block; }
 
-  :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -566,7 +521,7 @@
       <div class="empty" id="empty">
         <div class="empty-glyph">MD</div>
         <h2>No files yet</h2>
-        <p>Drop a Markdown file, or open your project folder. Everything stays local to your device.</p>
+        <p>Drop files or open your project folder. Supports Markdown, Mermaid diagrams, CSV, and Excel.</p>
         <div class="empty-actions">
           <button class="btn primary" id="emptyOpenFiles">Open files</button>
           <button class="btn" id="emptyOpenFolder">Open folder</button>
@@ -584,7 +539,7 @@
 
 <div class="scrim" id="scrim"></div>
 
-<input type="file" id="fileInput" multiple accept=".md,.markdown,.mdx,.txt" hidden />
+<input type="file" id="fileInput" multiple accept=".md,.markdown,.mdx,.txt,.mmd,.csv,.tsv,.xlsx,.xls" hidden />
 <input type="file" id="folderInput" webkitdirectory multiple hidden />
 
 <script>
@@ -627,6 +582,48 @@
   const idbClear  = (s)       => idbTx(s, 'readwrite', (os) => os.clear());
 
   /* ============================================================
+     Lazy loaders
+     ============================================================ */
+  const loadScript = (src) => new Promise((res) => {
+    if (document.querySelector(`script[src="${src}"]`)) return res(true);
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => res(true);
+    s.onerror = () => res(false);
+    document.head.appendChild(s);
+  });
+
+  let _mermaidPromise = null;
+  function ensureMermaid() {
+    if (window.mermaid) return Promise.resolve(true);
+    if (!_mermaidPromise) {
+      _mermaidPromise = loadScript('https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js')
+        .then((ok) => {
+          if (ok && window.mermaid) {
+            const dark = document.documentElement.dataset.theme !== 'light';
+            window.mermaid.initialize({
+              startOnLoad: false,
+              theme: dark ? 'dark' : 'default',
+              securityLevel: 'loose',
+              fontFamily: 'Inter, sans-serif',
+            });
+          }
+          return ok;
+        });
+    }
+    return _mermaidPromise;
+  }
+
+  let _xlsxPromise = null;
+  function ensureXLSX() {
+    if (window.XLSX) return Promise.resolve(true);
+    if (!_xlsxPromise) {
+      _xlsxPromise = loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+    }
+    return _xlsxPromise;
+  }
+
+  /* ============================================================
      Init
      ============================================================ */
   function init() {
@@ -639,6 +636,7 @@
       },
     });
 
+    // GFM task lists
     md.core.ruler.after('inline', 'gfm-task-list', (state) => {
       const t = state.tokens;
       for (let i = 2; i < t.length; i++) {
@@ -657,7 +655,7 @@
       }
     });
 
-    /* ---- KaTeX ---- */
+    // KaTeX
     const esc = md.utils.escapeHtml;
     const renderMath = (src, displayMode) => {
       if (!window.katex) return esc(src);
@@ -720,6 +718,10 @@
     const files = new Map();
     let current = null;
     let searchQuery = '';
+    let expandedFolders = new Set();
+    try {
+      expandedFolders = new Set(JSON.parse(localStorage.getItem('md-expanded') || '[]'));
+    } catch {}
 
     const $ = (id) => document.getElementById(id);
     const docEl = $('doc'), emptyEl = $('empty'), filenameEl = $('filename');
@@ -753,26 +755,60 @@
     }
     scrim.onclick = closeDrawers;
 
+    function saveExpanded() {
+      try { localStorage.setItem('md-expanded', JSON.stringify([...expandedFolders])); } catch {}
+    }
+
+    /* ============================================================
+       File type detection
+       ============================================================ */
+    function detectType(path) {
+      if (/\.(md|markdown|mdx|txt)$/i.test(path)) return 'md';
+      if (/\.mmd$/i.test(path)) return 'mmd';
+      if (/\.(csv|tsv)$/i.test(path)) return 'csv';
+      if (/\.(xlsx|xls)$/i.test(path)) return 'xlsx';
+      return null;
+    }
+    const isSupported = (path) => !!detectType(path);
+
     /* ============================================================
        File loading
        ============================================================ */
     async function loadFiles(list) {
       const jobs = [];
       const added = [];
+
       for (const f of list) {
         const path = (f.webkitRelativePath || f.name).replace(/^\/+/, '');
-        if (!/\.(md|markdown|mdx|txt)$/i.test(path)) continue;
-        jobs.push(new Promise((resolve) => {
-          const r = new FileReader();
-          r.onload = () => {
-            files.set(path, { name: path, content: r.result });
-            added.push({ path, content: r.result, savedAt: Date.now() });
-            resolve();
-          };
-          r.onerror = resolve;
-          r.readAsText(f);
-        }));
+        const type = detectType(path);
+        if (!type) continue;
+
+        jobs.push((async () => {
+          try {
+            if (type === 'xlsx') {
+              await ensureXLSX();
+              if (!window.XLSX) return;
+              const buf = await f.arrayBuffer();
+              const wb = XLSX.read(buf, { type: 'array' });
+              const sheets = wb.SheetNames.map((name) => ({
+                name,
+                rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: false }),
+              }));
+              const entry = { name: path, type, data: { sheets } };
+              files.set(path, entry);
+              added.push({ path, type, data: entry.data, savedAt: Date.now() });
+            } else {
+              const content = await f.text();
+              const entry = { name: path, type, content };
+              files.set(path, entry);
+              added.push({ path, type, content, savedAt: Date.now() });
+            }
+          } catch (e) {
+            console.warn('Failed to load', path, e);
+          }
+        })());
       }
+
       await Promise.all(jobs);
       for (const rec of added) idbPut('files', rec).catch(() => {});
       return added.length;
@@ -784,9 +820,7 @@
       if (depth > 8) return;
       for await (const [name, handle] of dirHandle.entries()) {
         if (handle.kind === 'file') {
-          if (/\.(md|markdown|mdx|txt)$/i.test(name)) {
-            out.push({ handle, path: prefix + name });
-          }
+          if (isSupported(name)) out.push({ handle, path: prefix + name });
         } else if (handle.kind === 'directory') {
           if (SKIP_DIRS.has(name) || name.startsWith('.')) continue;
           await walkHandle(handle, prefix + name + '/', out, depth + 1);
@@ -823,6 +857,44 @@
       }
     }
 
+    /* ============================================================
+       Tree building & rendering
+       ============================================================ */
+    function buildTree(paths) {
+      const root = { name: '', path: '', folders: new Map(), files: [], count: 0 };
+      for (const p of paths) {
+        const parts = p.split('/');
+        let node = root;
+        let acc = '';
+        for (let i = 0; i < parts.length - 1; i++) {
+          acc = acc ? acc + '/' + parts[i] : parts[i];
+          if (!node.folders.has(parts[i])) {
+            node.folders.set(parts[i], { name: parts[i], path: acc, folders: new Map(), files: [], count: 0 });
+          }
+          node = node.folders.get(parts[i]);
+        }
+        node.files.push({ name: parts[parts.length - 1], path: p, type: detectType(p) || 'md' });
+      }
+      computeCounts(root);
+      return root;
+    }
+    function computeCounts(node) {
+      let n = node.files.length;
+      for (const sub of node.folders.values()) n += computeCounts(sub);
+      node.count = n;
+      return n;
+    }
+
+    const TREE_ICONS = {
+      md: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`,
+      mmd: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M10 6.5h4a2 2 0 0 1 2 2v5.5"/></svg>`,
+      csv: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>`,
+      xlsx: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/><path d="M9 9l6 6M15 9l-6 6"/></svg>`,
+    };
+
+    const FOLDER_ICON = `<svg class="folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
+    const CHEVRON = `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
+
     function renderTree() {
       treeEl.innerHTML = '';
       const q = searchQuery.trim().toLowerCase();
@@ -837,28 +909,66 @@
         return;
       }
 
-      const fileIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
-      const folderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
+      const root = buildTree(paths);
+      renderNode(root, 0, !!q);
+    }
 
-      let lastDir = null;
-      for (const p of paths) {
-        const parts = p.split('/');
-        const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : null;
-        if (dir && dir !== lastDir) {
-          const d = document.createElement('div');
-          d.className = 'folder';
-          d.innerHTML = folderIcon + `<span>${dir}</span>`;
-          treeEl.appendChild(d);
-          lastDir = dir;
-        }
+    function renderNode(node, depth, forceExpand) {
+      const folders = [...node.folders.values()].sort((a, b) => a.name.localeCompare(b.name));
+      const nodeFiles = [...node.files].sort((a, b) => a.name.localeCompare(b.name));
+
+      for (const folder of folders) {
+        const expanded = forceExpand || expandedFolders.has(folder.path);
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'folder-row' + (expanded ? ' expanded' : '');
+        row.style.paddingLeft = (8 + depth * 14) + 'px';
+        row.title = folder.path;
+        row.innerHTML = CHEVRON + FOLDER_ICON +
+          `<span class="folder-name">${escapeHtml(folder.name)}</span>` +
+          `<span class="folder-count">${folder.count}</span>`;
+        row.onclick = () => {
+          if (expandedFolders.has(folder.path)) expandedFolders.delete(folder.path);
+          else expandedFolders.add(folder.path);
+          saveExpanded();
+          renderTree();
+        };
+        treeEl.appendChild(row);
+
+        if (expanded) renderNode(folder, depth + 1, forceExpand);
+      }
+
+      for (const f of nodeFiles) {
         const b = document.createElement('button');
-        b.className = 'file' + (p === current ? ' active' : '');
-        b.title = p;
-        b.dataset.path = p;
-        b.innerHTML = fileIcon + `<span class="file-name">${parts[parts.length - 1]}</span>`;
-        b.onclick = () => showFile(p);
+        b.type = 'button';
+        b.className = 'file' + (f.path === current ? ' active' : '');
+        b.style.paddingLeft = (8 + (depth + 1) * 14) + 'px';
+        b.dataset.path = f.path;
+        b.dataset.type = f.type;
+        b.title = f.path;
+
+        const dot = f.name.lastIndexOf('.');
+        const base = dot > 0 ? f.name.slice(0, dot) : f.name;
+        const ext  = dot > 0 ? f.name.slice(dot) : '';
+        b.innerHTML = (TREE_ICONS[f.type] || TREE_ICONS.md) +
+          `<span class="file-name">${escapeHtml(base)}<span class="ext">${escapeHtml(ext)}</span></span>`;
+        b.onclick = () => showFile(f.path);
         treeEl.appendChild(b);
       }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function expandAncestors(path) {
+      const parts = path.split('/');
+      let acc = '';
+      for (let i = 0; i < parts.length - 1; i++) {
+        acc = acc ? acc + '/' + parts[i] : parts[i];
+        expandedFolders.add(acc);
+      }
+      saveExpanded();
     }
 
     /* ============================================================
@@ -881,7 +991,7 @@
     });
 
     /* ============================================================
-       TOC
+       TOC (only for markdown)
        ============================================================ */
     function headingText(h) {
       const clone = h.cloneNode(true);
@@ -890,11 +1000,8 @@
     }
     function slugify(s) {
       return s.toLowerCase().trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 80) || 'section';
+        .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
+        .replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80) || 'section';
     }
 
     function buildTOC() {
@@ -959,30 +1066,144 @@
     }
 
     /* ============================================================
+       Renderers
+       ============================================================ */
+    function parseCSV(text, delim) {
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i+1] === '"') { cur += '"'; i++; }
+            else inQuotes = false;
+          } else cur += c;
+        } else {
+          if (c === '"') inQuotes = true;
+          else if (c === delim) { row.push(cur); cur = ''; }
+          else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+          else if (c === '\r') { /* skip */ }
+          else cur += c;
+        }
+      }
+      if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+      return rows;
+    }
+
+    function rowsToTable(rows, headerRow = true) {
+      if (!rows.length) return '<p>Empty</p>';
+      const head = headerRow ? rows[0] : null;
+      const body = headerRow ? rows.slice(1) : rows;
+      const cols = Math.max(head ? head.length : 0, ...rows.map((r) => r.length));
+      let html = '<table>';
+      if (head) {
+        html += '<thead><tr>';
+        for (let i = 0; i < cols; i++) html += `<th>${escapeHtml(head[i] ?? '')}</th>`;
+        html += '</tr></thead>';
+      }
+      html += '<tbody>';
+      for (const r of body) {
+        html += '<tr>';
+        for (let i = 0; i < cols; i++) html += `<td>${escapeHtml(r[i] ?? '')}</td>`;
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function renderCSV(text, path) {
+      const delim = /\.tsv$/i.test(path) ? '\t' : ',';
+      const rows = parseCSV(text, delim);
+      if (!rows.length) return '<p>Empty file.</p>';
+      return rowsToTable(rows, true);
+    }
+
+    function renderXLSX(data) {
+      if (!data || !data.sheets || !data.sheets.length) return '<p>Empty workbook.</p>';
+      let html = '<div class="sheet-tabs" role="tablist">';
+      data.sheets.forEach((s, i) => {
+        html += `<button class="sheet-tab${i === 0 ? ' active' : ''}" data-sheet="${i}" role="tab">${escapeHtml(s.name)}</button>`;
+      });
+      html += '</div>';
+      data.sheets.forEach((s, i) => {
+        html += `<div class="sheet-body" data-sheet="${i}"${i !== 0 ? ' hidden' : ''}>`;
+        html += rowsToTable(s.rows || [], true);
+        html += '</div>';
+      });
+      return html;
+    }
+
+    async function renderMermaid(code) {
+      docEl.innerHTML = '<div class="mermaid">' + escapeHtml(code) + '</div>';
+      const ok = await ensureMermaid();
+      if (!ok) {
+        docEl.innerHTML = '<pre><code>' + escapeHtml(code) + '</code></pre>';
+        return;
+      }
+      try {
+        const dark = document.documentElement.dataset.theme !== 'light';
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: dark ? 'dark' : 'default',
+          securityLevel: 'loose',
+          fontFamily: 'Inter, sans-serif',
+        });
+        await mermaid.run({ querySelector: '.mermaid' });
+      } catch (e) {
+        docEl.innerHTML = '<pre><code>' + escapeHtml(code) + '</code></pre>';
+      }
+    }
+
+    /* ============================================================
        Show file
        ============================================================ */
-    function showFile(path, { updateHash = true } = {}) {
+    async function showFile(path, { updateHash = true } = {}) {
       const f = files.get(path);
       if (!f) return;
       current = path;
       filenameEl.textContent = path;
       filenameEl.classList.remove('empty');
-      docEl.innerHTML = md.render(f.content);
-      docEl.hidden = false;
-      emptyEl.hidden = true;
       contentEl.scrollTop = 0;
+      docEl.classList.toggle('wide', f.type === 'csv' || f.type === 'xlsx');
 
-      buildTOC();
-      setupScrollSpy();
-
-      if (!isNarrow() && tocListEl.children.length) document.body.classList.add('toc-open');
-
+      // expand ancestors, then re-render tree
+      expandAncestors(path);
       renderTree();
       if (isNarrow()) closeDrawers();
       if (updateHash) setHash(path);
-
       idbPut('meta', path, 'lastFile').catch(() => {});
 
+      const type = f.type || 'md';
+      docEl.hidden = false;
+      emptyEl.hidden = true;
+
+      if (type === 'md') {
+        docEl.innerHTML = md.render(f.content || '');
+        buildTOC();
+        setupScrollSpy();
+        if (!isNarrow() && tocListEl.children.length) document.body.classList.add('toc-open');
+      } else if (type === 'mmd') {
+        tocListEl.innerHTML = '<div class="toc-empty">Diagram</div>';
+        await renderMermaid(f.content || '');
+      } else if (type === 'csv') {
+        tocListEl.innerHTML = '<div class="toc-empty">Table</div>';
+        docEl.innerHTML = renderCSV(f.content || '', path);
+      } else if (type === 'xlsx') {
+        tocListEl.innerHTML = '<div class="toc-empty">Workbook</div>';
+        docEl.innerHTML = renderXLSX(f.data);
+        docEl.querySelectorAll('.sheet-tab').forEach((tab) => {
+          tab.onclick = () => {
+            docEl.querySelectorAll('.sheet-tab').forEach((t) => t.classList.toggle('active', t === tab));
+            docEl.querySelectorAll('.sheet-body').forEach((b) => {
+              b.hidden = b.dataset.sheet !== tab.dataset.sheet;
+            });
+          };
+        });
+      }
+
+      // internal .md link interception
       docEl.querySelectorAll('a[href]').forEach((a) => {
         const href = a.getAttribute('href');
         if (!href || /^(https?:|mailto:|#)/.test(href)) return;
@@ -1125,6 +1346,17 @@
       $('hljs-light').disabled = dark;
       document.querySelector('meta[name="theme-color"]')
         .setAttribute('content', dark ? '#0d1117' : '#ffffff');
+      // refresh mermaid theme if already loaded
+      if (window.mermaid) {
+        try {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: dark ? 'dark' : 'default',
+            securityLevel: 'loose',
+            fontFamily: 'Inter, sans-serif',
+          });
+        } catch {}
+      }
     };
     syncHljs();
     $('themeBtn').onclick = () => {
@@ -1187,7 +1419,14 @@
     (async function boot() {
       try {
         const stored = await idbGetAll('files');
-        for (const rec of stored) files.set(rec.path, { name: rec.path, content: rec.content });
+        for (const rec of stored) {
+          const type = rec.type || detectType(rec.path) || 'md';
+          if (type === 'xlsx' && rec.data) {
+            files.set(rec.path, { name: rec.path, type, data: rec.data });
+          } else if (rec.content != null) {
+            files.set(rec.path, { name: rec.path, type, content: rec.content });
+          }
+        }
       } catch {}
 
       renderTree();
