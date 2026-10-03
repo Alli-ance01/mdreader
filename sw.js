@@ -1,4 +1,4 @@
-const CACHE = 'md-reader-v4';
+const CACHE = 'md-reader-v5';
 const SHELL = [
   '/',
   '/index.html',
