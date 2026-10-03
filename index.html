@@ -97,7 +97,6 @@
     #openFolder { display: none !important; }
   }
 
-  /* Sidebar chrome */
   .side-head {
     padding: 14px 14px 12px;
     display: flex; align-items: center; gap: 8px;
@@ -140,7 +139,6 @@
   .tree::-webkit-scrollbar { width: 8px; }
   .tree::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* ---- tree: folder rows ---- */
   .tree .folder-row {
     position: relative;
     display: flex; align-items: center; gap: 4px;
@@ -180,7 +178,6 @@
   .tree .folder-row:hover .folder-count,
   .tree .folder-row.expanded .folder-count { background: var(--surface-3); color: var(--fg-muted); }
 
-  /* ---- tree: file rows ---- */
   .tree .file {
     position: relative;
     display: flex; align-items: center; gap: 8px;
@@ -208,7 +205,6 @@
   .tree .file-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .tree .file-name .ext { color: var(--fg-dim); font-weight: 400; }
 
-  /* type-based icon colors */
   .tree .file[data-type="md"] svg      { color: #58a6ff; }
   .tree .file[data-type="mmd"] svg     { color: #d2a8ff; }
   .tree .file[data-type="csv"] svg     { color: #3fb950; }
@@ -228,7 +224,6 @@
     border-top: 1px solid var(--border-soft);
   }
 
-  /* Buttons */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     background: var(--surface-2); color: var(--fg);
@@ -291,11 +286,10 @@
     min-width: 0; overflow-wrap: anywhere;
     user-select: text; -webkit-user-select: text;
   }
-  .doc.wide { max-width: 1100px; } /* for CSV/XLSX */
+  .doc.wide { max-width: 1100px; }
 
   @media (max-width: 1100px) { .content { padding: 20px 16px 80px; } }
 
-  /* Empty state */
   .empty {
     max-width: 440px; margin: 8vh auto 0;
     text-align: center; color: var(--fg-muted); padding: 40px 24px;
@@ -315,7 +309,6 @@
     outline: 2px dashed var(--accent); outline-offset: 8px;
   }
 
-  /* Markdown typography */
   .doc h1, .doc h2, .doc h3, .doc h4 {
     line-height: 1.25; font-weight: 700; letter-spacing: -.02em;
     margin: 2em 0 .65em; color: var(--fg); scroll-margin-top: 70px;
@@ -380,7 +373,6 @@
   .doc .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; max-width: 100%; }
   .doc .katex { font-size: 1.05em; }
 
-  /* Sheet tabs (XLSX) */
   .doc .sheet-tabs {
     display: flex; gap: 2px;
     border-bottom: 1px solid var(--border);
@@ -399,7 +391,6 @@
   .doc .sheet-tab:hover { color: var(--fg); }
   .doc .sheet-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
 
-  /* Mermaid */
   .doc .mermaid {
     background: var(--surface); padding: 20px; border-radius: 8px;
     border: 1px solid var(--border); text-align: center;
@@ -407,7 +398,6 @@
   }
   .doc .mermaid svg { max-width: 100%; height: auto; }
 
-  /* TOC */
   .toc-title {
     font-size: 11px; font-weight: 600;
     text-transform: uppercase; letter-spacing: .08em;
@@ -442,6 +432,74 @@
   .scrim.show { display: block; }
 
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ============================================================
+     Loading banner
+     ============================================================ */
+  .load-banner {
+    position: sticky; top: 0; z-index: 12;
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .load-banner[hidden] { display: none; }
+  .load-banner .load-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--fg-muted);
+  }
+  .load-banner .spinner {
+    width: 14px; height: 14px; flex-shrink: 0;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .load-banner .load-text { flex: 1; min-width: 0; }
+  .load-banner .load-count {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--fg-dim); flex-shrink: 0;
+  }
+  .load-banner .load-bar {
+    height: 4px; background: var(--surface-3);
+    border-radius: 2px; overflow: hidden;
+  }
+  .load-banner .load-fill {
+    height: 100%; width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .15s ease;
+  }
+
+  /* ============================================================
+     Mermaid error
+     ============================================================ */
+  .mmd-error {
+    border: 1px solid #f85149; border-radius: 8px;
+    overflow: hidden; margin-bottom: 14px;
+  }
+  .mmd-error-head {
+    padding: 10px 14px;
+    background: rgba(248,81,73,0.1);
+    color: #f85149; font-size: 13px; font-weight: 600;
+  }
+  .mmd-error-body {
+    padding: 14px;
+    font-size: 13.5px; color: var(--fg-muted);
+    line-height: 1.55;
+    background: var(--surface);
+  }
+  .mmd-error-body pre {
+    background: var(--code-bg); padding: 10px 12px;
+    border-radius: 6px; overflow-x: auto;
+    font-family: var(--font-mono); font-size: 12px;
+    border: 1px solid var(--border); margin: 0;
+    white-space: pre;
+  }
+  .mmd-error-body code { font-family: var(--font-mono); }
 </style>
 </head>
 <body>
@@ -518,6 +576,14 @@
     </header>
 
     <div class="content" id="content">
+      <div class="load-banner" id="loadBanner" hidden>
+        <div class="load-row">
+          <div class="spinner"></div>
+          <div class="load-text" id="loadText">Scanning folder…</div>
+          <div class="load-count" id="loadCount"></div>
+        </div>
+        <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
+      </div>
       <div class="empty" id="empty">
         <div class="empty-glyph">MD</div>
         <h2>No files yet</h2>
@@ -636,7 +702,6 @@
       },
     });
 
-    // GFM task lists
     md.core.ruler.after('inline', 'gfm-task-list', (state) => {
       const t = state.tokens;
       for (let i = 2; i < t.length; i++) {
@@ -655,7 +720,6 @@
       }
     });
 
-    // KaTeX
     const esc = md.utils.escapeHtml;
     const renderMath = (src, displayMode) => {
       if (!window.katex) return esc(src);
@@ -772,6 +836,39 @@
     const isSupported = (path) => !!detectType(path);
 
     /* ============================================================
+       Loading progress UI
+       ============================================================ */
+    const loadBanner = $('loadBanner');
+    const loadText   = $('loadText');
+    const loadCount  = $('loadCount');
+    const loadFill   = $('loadFill');
+
+    function showLoad(text, current = 0, total = 0) {
+      loadBanner.hidden = false;
+      loadText.textContent = text;
+      if (total > 0) {
+        loadCount.textContent = `${current} / ${total}`;
+        loadFill.style.width = (current / total * 100).toFixed(1) + '%';
+      } else {
+        loadCount.textContent = '';
+        loadFill.style.width = '0%';
+      }
+    }
+    function hideLoad() {
+      loadBanner.hidden = true;
+      loadFill.style.width = '0%';
+    }
+
+    let _treeTimer = null;
+    function renderTreeThrottled() {
+      if (_treeTimer) return;
+      _treeTimer = setTimeout(() => {
+        _treeTimer = null;
+        renderTree();
+      }, 200);
+    }
+
+    /* ============================================================
        File loading
        ============================================================ */
     async function loadFiles(list) {
@@ -830,35 +927,84 @@
 
     async function pickFolderFS() {
       if (!window.showDirectoryPicker) return false;
-      try {
-        const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
-        const entries = [];
-        await walkHandle(dirHandle, '', entries);
-        if (!entries.length) return true;
 
-        const collected = [];
-        for (const { handle, path } of entries) {
-          try {
-            const f = await handle.getFile();
-            Object.defineProperty(f, 'webkitRelativePath', { value: path, configurable: true });
-            collected.push(f);
-          } catch {}
-        }
-        await loadFiles(collected);
-        renderTree();
-        if (!current && files.size) {
-          const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
-          showFile(readme || [...files.keys()][0]);
-        }
-        return true;
+      let dirHandle;
+      try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'read' });
       } catch (e) {
         if (e && e.name === 'AbortError') return true;
         return false;
       }
+
+      // Phase 1: scan handles (fast)
+      showLoad('Scanning folder…');
+      await new Promise((r) => requestAnimationFrame(r));
+
+      const entries = [];
+      await walkHandle(dirHandle, '', entries);
+
+      if (!entries.length) {
+        hideLoad();
+        return true;
+      }
+
+      // Phase 2: read files in chunks, stream into sidebar
+      showLoad('Loading files…', 0, entries.length);
+      await new Promise((r) => requestAnimationFrame(r));
+
+      const CHUNK = 12;
+      const added = [];
+
+      for (let i = 0; i < entries.length; i += CHUNK) {
+        const chunk = entries.slice(i, i + CHUNK);
+
+        await Promise.all(chunk.map(async ({ handle, path }) => {
+          const type = detectType(path);
+          if (!type) return;
+          try {
+            const f = await handle.getFile();
+            if (type === 'xlsx') {
+              await ensureXLSX();
+              if (!window.XLSX) return;
+              const buf = await f.arrayBuffer();
+              const wb = XLSX.read(buf, { type: 'array' });
+              const sheets = wb.SheetNames.map((name) => ({
+                name,
+                rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: false }),
+              }));
+              const entry = { name: path, type, data: { sheets } };
+              files.set(path, entry);
+              added.push({ path, type, data: entry.data, savedAt: Date.now() });
+            } else {
+              const content = await f.text();
+              files.set(path, { name: path, type, content });
+              added.push({ path, type, content, savedAt: Date.now() });
+            }
+          } catch (e) {
+            console.warn('Failed to load', path, e);
+          }
+        }));
+
+        const done = Math.min(i + CHUNK, entries.length);
+        showLoad('Loading files…', done, entries.length);
+        renderTreeThrottled();
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+
+      for (const rec of added) idbPut('files', rec).catch(() => {});
+
+      renderTree();
+      hideLoad();
+
+      if (!current && files.size) {
+        const readme = [...files.keys()].find((p) => /readme\.md$/i.test(p));
+        showFile(readme || [...files.keys()][0]);
+      }
+      return true;
     }
 
     /* ============================================================
-       Tree building & rendering
+       Tree
        ============================================================ */
     function buildTree(paths) {
       const root = { name: '', path: '', folders: new Map(), files: [], count: 0 };
@@ -991,7 +1137,7 @@
     });
 
     /* ============================================================
-       TOC (only for markdown)
+       TOC
        ============================================================ */
     function headingText(h) {
       const clone = h.cloneNode(true);
@@ -1135,13 +1281,37 @@
       return html;
     }
 
+    function showMermaidError(raw, message, singleLineHint) {
+      const hint = singleLineHint
+        ? '<p style="margin: 10px 0 6px;">Your file looks like the whole diagram is on one line. Mermaid needs each statement on its own line. Example:</p>' +
+          '<pre><code>flowchart TB\n  DNS[DNS / TLS] --&gt; CDN[Frontend CDN]\n  DNS --&gt; API[API Host]\n  CDN --&gt; Browser[Browser]</code></pre>'
+        : '';
+      docEl.innerHTML =
+        '<div class="mmd-error">' +
+          '<div class="mmd-error-head">Mermaid syntax error</div>' +
+          '<div class="mmd-error-body">' +
+            '<div>' + escapeHtml(message) + '</div>' +
+            hint +
+            '<p style="margin: 12px 0 6px; color: var(--fg-muted);">Raw file content:</p>' +
+            '<pre><code>' + escapeHtml(raw) + '</code></pre>' +
+          '</div>' +
+        '</div>';
+    }
+
     async function renderMermaid(code) {
-      docEl.innerHTML = '<div class="mermaid">' + escapeHtml(code) + '</div>';
+      const raw = code || '';
+
+      docEl.innerHTML = '<div class="mermaid">' + escapeHtml(raw) + '</div>';
+
+      const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+      const looksSingleLine = lines.length <= 1 && raw.length > 80;
+
       const ok = await ensureMermaid();
       if (!ok) {
-        docEl.innerHTML = '<pre><code>' + escapeHtml(code) + '</code></pre>';
+        showMermaidError(raw, 'Failed to load the Mermaid library. Check your network connection.', looksSingleLine);
         return;
       }
+
       try {
         const dark = document.documentElement.dataset.theme !== 'light';
         mermaid.initialize({
@@ -1152,7 +1322,8 @@
         });
         await mermaid.run({ querySelector: '.mermaid' });
       } catch (e) {
-        docEl.innerHTML = '<pre><code>' + escapeHtml(code) + '</code></pre>';
+        const msg = (e && e.message) || 'Mermaid could not parse this diagram.';
+        showMermaidError(raw, msg, looksSingleLine);
       }
     }
 
@@ -1168,7 +1339,6 @@
       contentEl.scrollTop = 0;
       docEl.classList.toggle('wide', f.type === 'csv' || f.type === 'xlsx');
 
-      // expand ancestors, then re-render tree
       expandAncestors(path);
       renderTree();
       if (isNarrow()) closeDrawers();
@@ -1203,7 +1373,6 @@
         });
       }
 
-      // internal .md link interception
       docEl.querySelectorAll('a[href]').forEach((a) => {
         const href = a.getAttribute('href');
         if (!href || /^(https?:|mailto:|#)/.test(href)) return;
@@ -1346,7 +1515,6 @@
       $('hljs-light').disabled = dark;
       document.querySelector('meta[name="theme-color"]')
         .setAttribute('content', dark ? '#0d1117' : '#ffffff');
-      // refresh mermaid theme if already loaded
       if (window.mermaid) {
         try {
           mermaid.initialize({
