@@ -1,5 +1,13 @@
-const CACHE = 'md-reader-v1';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg'];
+const CACHE = 'md-reader-v2';
+const SHELL = [
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-512.png'
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));
@@ -20,7 +28,6 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (!url.protocol.startsWith('http')) return;
 
-  // stale-while-revalidate
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(req);
